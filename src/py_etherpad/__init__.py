@@ -15,7 +15,7 @@ except ImportError:
 
 class EtherpadLiteClient:
     """Client to talk to EtherpadLite API."""
-    API_VERSION = 1  # TODO probably 1.1 sometime soon
+    API_VERSION = 1.2.13  # TODO probably 1.1 sometime soon
 
     CODE_OK = 0
     CODE_INVALID_PARAMETERS = 1
