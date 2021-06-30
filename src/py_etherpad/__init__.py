@@ -15,7 +15,7 @@ except ImportError:
 
 class EtherpadLiteClient:
     """Client to talk to EtherpadLite API."""
-    API_VERSION = 1.2.13  # TODO probably 1.1 sometime soon
+    API_VERSION = "1.2.13"  # TODO probably 1.1 sometime soon
 
     CODE_OK = 0
     CODE_INVALID_PARAMETERS = 1
@@ -36,7 +36,7 @@ class EtherpadLiteClient:
 
     def call(self, function, arguments=None):
         """Create a dictionary of all parameters"""
-        url = '%s/%d/%s' % (self.baseUrl, self.API_VERSION, function)
+        url = '%s/%s/%s' % (self.baseUrl, self.API_VERSION, function)
 
         params = arguments or {}
         params.update({'apikey': self.apiKey})
@@ -117,6 +117,10 @@ class EtherpadLiteClient:
             params['text'] = text
         return self.call("createGroupPad", params)
 
+    def listAllGroups(self):
+        """returns list of all existing groups"""
+        return self.call("listAllGroups")
+
     # AUTHORS
     # Theses authors are bind to the attributes the users choose (color and name).
 
@@ -139,6 +143,12 @@ class EtherpadLiteClient:
     def listPadsOfAuthor(self, authorID):
         """returns the ids of all pads this author has edited"""
         return self.call("listPadsOfAuthor", {
+            "authorID": authorID
+        })
+
+    def getAuthorName(self, authorID):
+        """returns the name of the Author"""
+        return self.call("getAuthorName", {
             "authorID": authorID
         })
 
@@ -189,14 +199,6 @@ class EtherpadLiteClient:
             params['rev'] = rev
         return self.call("getText", params)
 
-    # introduced with pull request merge
-    def getHtml(self, padID, rev=None):
-        """returns the html of a pad"""
-        params = {"padID": padID}
-        if rev is not None:
-            params['rev'] = rev
-        return self.call("getHTML", params)
-
     def setText(self, padID, text):
         """sets the text of a pad"""
         return self.call("setText", {
@@ -211,12 +213,58 @@ class EtherpadLiteClient:
             "text": text
         })
 
+    # introduced with pull request merge
+    def getHtml(self, padID, rev=None):
+        """returns the html of a pad"""
+        params = {"padID": padID}
+        if rev is not None:
+            params['rev'] = rev
+        return self.call("getHTML", params)
+
     def setHtml(self, padID, html):
         """sets the text of a pad from html"""
         return self.call("setHTML", {
             "padID": padID,
             "html": html
         })
+    
+    def getAttributePool(self, padID):
+        """returns the attribute pool of a pad"""
+        return self.call("getAttributePool", {
+            "padID": padID
+        })
+
+    def getRevisionChangeset(self, padID, rev=None):
+        """returns the changeset at a given revision, or last revision if rev is not defined"""
+        params = {"padID": padID}
+        if rev is not None:
+            params['rev'] = rev
+        return self.call("getRevisionChangeset", params)
+
+    def createDiffHTML(self, padID, startRev, endRev):
+        """returns an object of diffs from 2 points in a pad"""
+        return self.call("createDiffHTML", {
+            "padID": padID,
+            "startRev": startRev,
+            "endRev": endRev
+        })
+
+    def restoreRevision(self, padId, rev):
+        """Restores revision from past as new changeset"""
+        return self.call("restoreRevision", {
+            "padId": padId,
+            "rev": rev
+        })
+
+    # CHAT
+
+    def getChatHistory(self, padID, start = None, end = None):
+        """returns a part of the chat history, when start and end are given or the whole chat histroy, when no extra parameters are given"""
+        params = {"padID": padID}
+        if start is not None and end is not None:
+            params['start'] = start
+            params['end'] = end        
+        return self.call("getRevisionChangeset", params) 
 
     # PAD
     # Group pads are normal pads, but with the name schema
@@ -293,3 +341,9 @@ class EtherpadLiteClient:
         return self.call("isPasswordProtected", {
             "padID": padID
         })
+
+    # PADS
+    
+    def listAllPads(self):
+        """returns list of all pads on this epl instance"""
+        return self.call("listAllPads")
