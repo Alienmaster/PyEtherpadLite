@@ -4,10 +4,10 @@ from setuptools import setup, find_packages
  
 setup(
     name='pyetherpadlite',
-    version='0.1',
-    description='Python bindings for Etherpad-Lite\'s HTTP API. (https://github.com/Pita/etherpad-lite)',
-    author='devjones',
-    url='https://github.com/devjones/PyEtherpadLite',
+    version='1.0',
+    description='Python bindings for Etherpad\'s HTTP API. (https://github.com/ether/etherpad-lite)',
+    author='alienmaster, devjones',
+    url='https://github.com/Alienmaster/PyEtherpadLite',
     packages=find_packages('src'),
     package_dir={'': 'src'},
 )
