@@ -15,7 +15,7 @@ except ImportError:
 
 class EtherpadLiteClient:
     """Client to talk to EtherpadLite API."""
-    API_VERSION = "1.2.13"  # TODO probably 1.1 sometime soon
+    API_VERSION = "1.2.15"
 
     CODE_OK = 0
     CODE_INVALID_PARAMETERS = 1
@@ -83,14 +83,14 @@ class EtherpadLiteClient:
             raise Exception("An unexpected error occurred whilst handling the response")
 
     # GROUPS
-    # Pads can belong to a group. There will always be public pads that do not belong to a group (or we give this group the id 0)
+    # Pads can belong to a group. The padID of grouppads is starting with a groupID like g.asdfasdfasdfasdf$test
 
     def createGroup(self):
         """creates a new group"""
         return self.call("createGroup")
 
     def createGroupIfNotExistsFor(self, groupMapper):
-        """this functions helps you to map your application group ids to etherpad lite group ids"""
+        """this functions helps you to map your application group ids to Etherpad group ids"""
         return self.call("createGroupIfNotExistsFor", {
             "groupMapper": groupMapper
         })
@@ -118,7 +118,7 @@ class EtherpadLiteClient:
         return self.call("createGroupPad", params)
 
     def listAllGroups(self):
-        """returns list of all existing groups"""
+        """lists all existing groups"""
         return self.call("listAllGroups")
 
     # AUTHORS
@@ -132,7 +132,7 @@ class EtherpadLiteClient:
         return self.call("createAuthor", params)
 
     def createAuthorIfNotExistsFor(self, authorMapper, name=''):
-        """this functions helps you to map your application author ids to etherpad lite author ids"""
+        """this functions helps you to map your application author ids to Etherpad author ids"""
         params = {
             'authorMapper': authorMapper
         }
@@ -141,24 +141,27 @@ class EtherpadLiteClient:
         return self.call("createAuthorIfNotExistsFor", params)
 
     def listPadsOfAuthor(self, authorID):
-        """returns the ids of all pads this author has edited"""
+        """returns an array of all pads this author contributed to"""
         return self.call("listPadsOfAuthor", {
             "authorID": authorID
         })
 
     def getAuthorName(self, authorID):
-        """returns the name of the Author"""
+        """Returns the Author Name of the author"""
         return self.call("getAuthorName", {
             "authorID": authorID
         })
 
     # SESSIONS
-    # Sessions can be created between a group and a author. This allows
-    # an author to access more than one group. The sessionID will be set as
-    # a cookie to the client and is valid until a certain date.
+    # Sessions can be created between a group and an author. This allows an author to access more than one group. 
+    # The sessionID will be set as a cookie to the client and is valid until a certain date. The session cookie can also 
+    # contain multiple comma-separated sessionIDs, allowing a user to edit pads in different groups at the same time.
+    # Only users with a valid session for this group, can access group pads. You can create a session after you 
+    # authenticated the user at your web application, to give them access to the pads. You should save the sessionID 
+    # of this session and delete it after the user logged out.
 
     def createSession(self, groupID, authorID, validUntil):
-        """creates a new session"""
+        """creates a new session. validUntil is an unix timestamp in seconds"""
         return self.call("createSession", {
             "groupID": groupID,
             "authorID": authorID,
@@ -199,30 +202,29 @@ class EtherpadLiteClient:
             params['rev'] = rev
         return self.call("getText", params)
 
-    def setText(self, padID, text):
-        """sets the text of a pad"""
+    def setText(self, padID, text): #TODO New setText for Text >8KB See: https://etherpad.org/doc/v1.8.14/#index_settextpadid-text
+        """Sets the text of a pad"""
         return self.call("setText", {
             "padID": padID,
             "text": text
         })
     
-    def appendText(self, padID, text):
-        """appends the text to a pad"""
+    def appendText(self, padID, text): #TODO New appendText for Text >8KB
+        """Appends text to a pad."""
         return self.call("appendText", {
             "padID": padID,
             "text": text
         })
 
-    # introduced with pull request merge
     def getHtml(self, padID, rev=None):
-        """returns the html of a pad"""
+        """returns the text of a pad formatted as HTML"""
         params = {"padID": padID}
         if rev is not None:
             params['rev'] = rev
         return self.call("getHTML", params)
 
-    def setHtml(self, padID, html):
-        """sets the text of a pad from html"""
+    def setHtml(self, padID, html): #TODO New setHTML for Text >8KB
+        """sets the text of a pad based on HTML, HTML must be well-formed. Malformed HTML will send a warning to the API log."""
         return self.call("setHTML", {
             "padID": padID,
             "html": html
@@ -235,13 +237,13 @@ class EtherpadLiteClient:
         })
 
     def getRevisionChangeset(self, padID, rev=None):
-        """returns the changeset at a given revision, or last revision if rev is not defined"""
+        """get the changeset at a given revision, or last revision if 'rev' is not defined."""
         params = {"padID": padID}
         if rev is not None:
             params['rev'] = rev
         return self.call("getRevisionChangeset", params)
 
-    def createDiffHTML(self, padID, startRev, endRev):
+    def createDiffHtml(self, padID, startRev, endRev):
         """returns an object of diffs from 2 points in a pad"""
         return self.call("createDiffHTML", {
             "padID": padID,
@@ -249,10 +251,10 @@ class EtherpadLiteClient:
             "endRev": endRev
         })
 
-    def restoreRevision(self, padId, rev):
+    def restoreRevision(self, padID, rev):
         """Restores revision from past as new changeset"""
         return self.call("restoreRevision", {
-            "padId": padId,
+            "padID": padID,
             "rev": rev
         })
 
@@ -264,15 +266,32 @@ class EtherpadLiteClient:
         if start is not None and end is not None:
             params['start'] = start
             params['end'] = end        
-        return self.call("getRevisionChangeset", params) 
+        return self.call("getRevisionChangeset", params)
+
+    def getChatHead(self, padID):
+        """returns the chatHead (last number of the last chat-message) of the pad"""
+        return self.call("getChatHead", {
+            "padID": padID,
+        })
+
+    def appendChatMessage(self, padID, text, authorID, time=''):
+    """creates a chat message, saves it to the database and sends it to all connected clients of this pad"""
+    params = {
+        "padID": padID,
+        "text": text,
+        "authorID": authorID
+    }
+    if time:
+        params['time'] = time
+    return self.call("appendChatMessage", params)
 
     # PAD
-    # Group pads are normal pads, but with the name schema
-    # GROUPID$PADNAME. A security manager controls access of them and its
-    # forbidden for normal pads to include a  in the name.
+    # Group pads are normal pads, but with the name schema GROUPID$PADNAME. A security manager controls 
+    # access of them and it's forbidden for normal pads to include a $ in the name.
 
     def createPad(self, padID, text=''):
-        """creates a new pad"""
+        """creates a new (non-group) pad. Note that if you need to create a group Pad, you should call createGroupPad. 
+        You get an error message if you use one of the following characters in the padID: "/", "?", "&" or "#"."""
         params = {
             "padID": padID,
         }
@@ -286,15 +305,36 @@ class EtherpadLiteClient:
             "padID": padID
         })
 
+    def getSavedRevisionsCount(self, padID):
+        """returns the number of saved revisions of this pad"""
+        return self.call("getSavedRevisionsCount", {
+            "padID": padID
+        })
+
+    def listSavedRevisions(self, padID):
+        """returns the list of saved revisions of this pad"""
+        return self.call("listSavedRevisions", {
+            "padID": padID
+        })
+
+    def saveRevision(self, padID, rev=''):
+        """saves a revision"""
+        params = {
+            'padID': padID
+        }
+        if rev:
+            params['rev'] = rev
+        return self.call("saveRevision", params)
+
     def padUsersCount(self, padID):
         """returns the number of users currently editing this pad"""
         return self.call("padUsersCount", {
             "padID": padID
         })
 
-    def getLastEdited(self, padID):
-        """returns the time the pad was last edited as a Unix timestamp"""
-        return self.call("getLastEdited", {
+    def padUsers(self, padID):
+        """returns the list of users that are currently editing this pad"""
+        return self.call("padUsers", {
             "padID": padID
         })
 
@@ -304,16 +344,44 @@ class EtherpadLiteClient:
             "padID": padID
         })
 
+    def copyPad(self, sourceID, destinationID, force=False):
+        """copies a pad with full history and chat. If force is true and the destination pad exists, it will be overwritten."""
+        params = {
+            "sourceID": sourceID,
+            "destinationID": destinationID,
+            "force": force
+        }
+        return self.call("copyPad", params)
+
+    def copyPadWithoutHistory(self, sourceID, destinationID, force=False):
+        """copies a pad without copying the history and chat. If force is true and the destination pad exists, it will be 
+        overwritten. Note that all the revisions will be lost! In most of the cases one should use copyPad API instead."""
+        params = {
+            "sourceID": sourceID,
+            "destinationID": destinationID,
+            "force": force
+        }
+        return self.call("copyPadWithoutHistory", params)
+
+    def movePad(self, sourceID, destinationID, force=False):
+        """moves a pad. If force is true and the destination pad exists, it will be overwritten."""
+        params = {
+            "sourceID": sourceID,
+            "destinationID": destinationID,
+            "force": force
+        }
+        return self.call("movePad", params)
+
     def getReadOnlyID(self, padID):
         """returns the read only link of a pad"""
         return self.call("getReadOnlyID", {
             "padID": padID
         })
 
-    def listAuthorsOfPad(self, padID):
-        """returns the ids of all authors who've edited this pad"""
-        return self.call("listAuthorsOfPad", {
-            "padID": padID
+    def getPadID(self, readOnlyID):
+        """returns the id of a pad which is assigned to the readOnlyID"""
+        return self.call("getPadID", {
+            "readOnlyID": readOnlyID
         })
 
     def setPublicStatus(self, padID, publicStatus):
@@ -329,14 +397,39 @@ class EtherpadLiteClient:
             "padID": padID
         })
 
-    def setPassword(self, padID, password):
+    def listAuthorsOfPad(self, padID):
+        """returns the ids of all authors who've edited this pad"""
+        return self.call("listAuthorsOfPad", {
+            "padID": padID
+        })
+
+    def getLastEdited(self, padID):
+        """returns the timestamp of the last revision of the pad"""
+        return self.call("getLastEdited", {
+            "padID": padID
+        })
+    
+    def sendClientsMessage(self, padID, msg):
+        """sends a custom message of type msg to the pad"""
+        return self.call("sendClientsMessage", {
+            "padID": padID,
+            "msg": msg
+        })
+
+    def checkToken(self):
+        """returns ok when the current api token is valid"""
+        return self.call("checkToken", {
+            "checkToken": padID
+        })
+
+    def setPassword(self, padID, password): #TODO Depricated?
         """returns ok or a error message"""
         return self.call("setPassword", {
             "padID": padID,
             "password": password
         })
 
-    def isPasswordProtected(self, padID):
+    def isPasswordProtected(self, padID): #TODO Depricated?
         """returns true or false"""
         return self.call("isPasswordProtected", {
             "padID": padID
@@ -345,5 +438,11 @@ class EtherpadLiteClient:
     # PADS
     
     def listAllPads(self):
-        """returns list of all pads on this epl instance"""
+        """lists all pads on this epl instance"""
         return self.call("listAllPads")
+
+    # GLOBAL
+
+    def getStats(self):
+        """get stats of the etherpad instance"""
+        return self.call("getStats")
