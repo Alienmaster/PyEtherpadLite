@@ -3,7 +3,7 @@ This python api enables easy interaction with the Etherpad API.  Etherpad is a c
 # 1 Installation
 
 ```
-pip install pythetherpadlite
+pip install pyetherpadlite
 ```
 
 
