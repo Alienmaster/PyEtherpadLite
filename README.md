@@ -1,3 +1,6 @@
+# API version
+The supported API version is [1.2.15](https://etherpad.org/doc/v1.8.16/#index_http-api)
+
 This python api enables easy interaction with the Etherpad API.  Etherpad is a collaborative editor provided by the Etherpad Foundation.  http://etherpad.org
 
 # 1 Installation
