@@ -37,4 +37,4 @@ See the setup.py file for further details on the methods and parameters availabl
 Apache License
 
 # 6 Credit
-This python API-Wrapper is a Fork from [devjones](https://github.com/devjones/PyEtherpadLite) and is inspired by TomNomNom's php client which can be found at: https://github.com/TomNomNom/etherpad-lite-client
+This python API-Wrapper is a Fork from [devjones](https://github.com/devjones/PyEtherpadLite) and is inspired by [TomNomNom's php client](https://github.com/TomNomNom/etherpad-lite-client)
