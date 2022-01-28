@@ -275,15 +275,15 @@ class EtherpadLiteClient:
         })
 
     def appendChatMessage(self, padID, text, authorID, time=''):
-    """creates a chat message, saves it to the database and sends it to all connected clients of this pad"""
-    params = {
-        "padID": padID,
-        "text": text,
-        "authorID": authorID
-    }
-    if time:
-        params['time'] = time
-    return self.call("appendChatMessage", params)
+        """creates a chat message, saves it to the database and sends it to all connected clients of this pad"""
+        params = {
+            "padID": padID,
+            "text": text,
+            "authorID": authorID
+        }
+        if time:
+            params['time'] = time
+        return self.call("appendChatMessage", params)
 
     # PAD
     # Group pads are normal pads, but with the name schema GROUPID$PADNAME. A security manager controls 
