@@ -30,7 +30,7 @@ Once you have created the APIKEY.txt file, you will need to edit the py_etherpad
 
 # 4 More details
 
-See the setup.py file for further details on the methods and parameters available for the API
+See the src/py_etherpad/__init__.py file for further details on the methods and parameters available for the API
 
 # 5 License
 
