@@ -5,7 +5,7 @@ This python api enables easy interaction with the Etherpad API.  Etherpad is a c
 
 # 1 Installation
 
-```
+```shell
 pip install pyetherpadlite
 ```
 
@@ -22,11 +22,11 @@ echo -n "myapikey" > APIKEY.txt
 Once you have created the APIKEY.txt file, you will need to edit the py_etherpad.py wrapper to set your API key. Edit the 'apiKey' variable and set it to the same key as defined in your APIKEY.txt file.
 
 # 3 Basic usage
+
 ```python
 from py_etherpad import EtherpadLiteClient
 myPad = EtherpadLiteClient('EtherpadFTW','http://beta.etherpad.org/api')
-
-#Change the text of the etherpad
+# Change the text of the etherpad
 myPad.setText('testPad','New text from the python wrapper!')
 ```
 

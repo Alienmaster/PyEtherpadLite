@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
- 
+
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(
     name='pyetherpadlite',
     version='1.1.1',
     description='Python bindings for Etherpad\'s HTTP API. (https://github.com/ether/etherpad-lite)',
-    long_description=read_file('README.md'),
+    long_description=long_description,
     long_description_content_type='text/markdown',
     license="Apache Software License 2.0",
     author='alienmaster, devjones',
