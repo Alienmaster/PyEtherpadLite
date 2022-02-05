@@ -1,40 +1,178 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 """Module to test py_etherpad."""
 
 import py_etherpad
 import unittest
+import random
+import string
 
+apiKey = "ef4d13df379edf92f2d2011add171980e59092830a89b62c66a55b914f72dceb"
+baseUrl = "http://localhost:9001/api"
 
 class TestEtherpadLiteClient(unittest.TestCase):
     """Class to test EtherpadLiteClient."""
 
     def setUp(self):
         """Assign a shared EtherpadLiteClient instance to self."""
-        self.ep_client = py_etherpad.EtherpadLiteClient()
+        self.ep_client = py_etherpad.EtherpadLiteClient(apiKey, baseUrl)
 
-    def testCreateLargePad(self):
-        """Initialize a pad with a large body of text, and remove the pad if that succeeds."""
-        with open('tell-tale.txt') as read_handle:
-            content = read_handle.read()
+    # GROUPS
 
-        # Create and remove pad
-        print(self.ep_client.createPad('telltale', content))
-        print(self.ep_client.deletePad('telltale'))
+    def testGroups(self):
+        """list, create and delete Groups"""
+        # self.ep_client.deleteGroup(["g.af5lNoycwwlAG6Q7"])
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': []})
+        group = self.ep_client.createGroup()["groupID"]
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': [group]})
+        self.assertEqual(self.ep_client.deleteGroup(group), None)
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': []})
 
-    def testCreateHTMLPad(self):
-        """Create an initially empty pad, add a HTML text body and remove the pad if that succeeds."""
-        content = "<!DOCTYPE HTML><html><body><div><u>Underlined text</u><ul><li>this</li><li>is a</li><li><strong>unordered</strong></li>" + \
-                  "<li>list</li></ul>after the list a newline is automatically <u>added</u>" + \
-                  "<br>BR can also be used to force new <em>lines</em><p><strong>Or you can use paragraphs</strong></p></div></body></html>"
+        # Delete non-existing group
+        with self.assertRaises(ValueError) as cm:
+            self.assertEqual(self.ep_client.deleteGroup(group))
+        self.assertEqual(cm.exception, 'groupID does not exist')
 
+    def testGroupMapper(self):
+        """Test Group Mapper. Create two groups with mapping to external ID.
 
-        # Create and remove pad
-        print(self.ep_client.createPad('htmlpad'))
-        print(self.ep_client.setHtml('htmlpad', content))
-        print(self.ep_client.getHtml('htmlpad'))
-        print(self.ep_client.deletePad('htmlpad'))
+        Create group one and try to create the same group another time.
+        Create a second group, remove the first and remove the second afterwards."""
 
+        e_group_id_one = "Cat Pack"
+        e_group_id_two = "Feline Pack"
+        # Create first group with "Cat Pack" and check if it exists only once
+        i_group_id_one = self.ep_client.createGroupIfNotExistsFor(e_group_id_one)
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': [i_group_id_one["groupID"]]})
+        self.assertEqual(self.ep_client.createGroupIfNotExistsFor(e_group_id_one), i_group_id_one)
+        self.assertEqual(self.ep_client.createGroupIfNotExistsFor(e_group_id_one), i_group_id_one)
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': [i_group_id_one["groupID"]]})
+
+        # Create second group with "Feline Pack" and check if both groups exist.
+        i_group_id_two = self.ep_client.createGroupIfNotExistsFor(e_group_id_two)
+        self.assertEqual(self.ep_client.listAllGroups(),
+                         {'groupIDs': [i_group_id_one["groupID"], i_group_id_two["groupID"]]})
+
+        # Try to create the same group another time
+        self.assertEqual(self.ep_client.createGroupIfNotExistsFor(e_group_id_two), i_group_id_two)
+        self.assertEqual(self.ep_client.createGroupIfNotExistsFor(e_group_id_two), i_group_id_two)
+
+        # Delete the first group
+        self.assertEqual(self.ep_client.deleteGroup(i_group_id_one["groupID"]), None)
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': [i_group_id_two["groupID"]]})
+
+        # Delete the second group
+        self.assertEqual(self.ep_client.deleteGroup(i_group_id_two["groupID"]), None)
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': []})
+
+    def testCreateGroupPad(self):
+        pad_name_one = 'Hairball'
+        pad_name_two = 'Paws'
+        standard_content = 'Welcome to Etherpad!\n\nThis pad text is synchronized as you type, so that everyone ' \
+                           'viewing this page sees the same text. This allows you to collaborate seamlessly on ' \
+                           'documents!\n\nGet involved with Etherpad at https://etherpad.org\n\nWarning: DirtyDB is ' \
+                           'used. This is not recommended for production. -- To suppress these warning messages ' \
+                           'change suppressErrorsInPadText to true in your settings.json\n\n'
+
+        pad_content_two = 'Wo lebt eine Katze? Im Miezhaus'
+
+        # Create groups
+        group_one = self.ep_client.createGroup()['groupID']
+        group_two = self.ep_client.createGroup()['groupID']
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': [group_one, group_two]})
+
+        # Create empty group Pad for group one and list group Pads
+        # TODO: Mismatch between Doc and API? Return not Null of "createGroupPad" PR running
+        pad_id_one = group_one + "$" + pad_name_one
+        self.assertEqual(self.ep_client.createGroupPad(group_one, pad_name_one), {'padID': pad_id_one})
+        self.assertEqual(self.ep_client.listPads(group_one), {'padIDs': [pad_id_one]})
+        self.assertEqual(self.ep_client.listPads(group_two), {'padIDs': []})
+
+        # Create prefilled Pad for group two and list group Pads
+        pad_id_two = group_two + "$" + pad_name_two
+        self.assertEqual(self.ep_client.createGroupPad(group_two, pad_name_two, pad_content_two), {'padID': pad_id_two})
+
+        # Check if both groups have one pad each
+        self.assertEqual(self.ep_client.listPads(group_one), {'padIDs': [pad_id_one]})
+        self.assertEqual(self.ep_client.listPads(group_two), {'padIDs': [pad_id_two]})
+
+        # Create the same pad another time
+        # TODO PR Running pad =/= padName
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.createGroupPad(group_one, pad_name_one)
+        self.assertEqual(str(cm.exception), 'padName does already exist')
+
+        # Read both group Pads
+        self.assertEqual(self.ep_client.getText(pad_id_one), {'text': standard_content})
+        self.assertEqual(self.ep_client.getText(pad_id_two), {'text': pad_content_two + "\n"})
+
+        # Delete Pads
+        self.assertEqual(self.ep_client.deletePad(pad_id_one), None)
+        self.assertEqual(self.ep_client.listPads(group_one), {'padIDs': []})
+        self.assertEqual(self.ep_client.listPads(group_two), {'padIDs': [pad_id_two]})
+        self.assertEqual(self.ep_client.deletePad(pad_id_two), None)
+        self.assertEqual(self.ep_client.listPads(group_two), {'padIDs': []})
+
+        # Delete groups
+        self.assertEqual(self.ep_client.deleteGroup(group_one), None)
+        self.assertEqual(self.ep_client.deleteGroup(group_two), None)
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': []})
+
+        # Create Pad for non-existing group
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.createGroupPad(group_one, pad_name_one)
+        self.assertEqual(str(cm.exception), 'groupID does not exist')
+
+    # AUTHORS
+
+    def testCreateAuthor(self):
+        # TODO missing Test of listOfPadsOfAuthor when Authors has a Pad
+        # TODO Doku wrong: getAuthorName returns String of authorName not Dict
+        # Create an author
+        random_name_one = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+        random_name_two = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+
+        author_id_one = self.ep_client.createAuthor(random_name_one)
+
+        # get author name
+        self.assertEqual(self.ep_client.getAuthorName(author_id_one['authorID']), random_name_one)
+
+        # Create another with authormapper with empty name and check name of both authors
+        author_id_two = self.ep_client.createAuthorIfNotExistsFor('')
+        self.assertEqual(self.ep_client.getAuthorName(author_id_two['authorID']), None)
+        self.assertEqual(self.ep_client.getAuthorName(author_id_one['authorID']), random_name_one)
+
+        # Try to create the first author again with authormapper
+        self.assertNotEqual(self.ep_client.createAuthorIfNotExistsFor(random_name_one), {'authorID': author_id_one['authorID']})
+
+        # Check first authors pads and create one
+        self.assertEqual(self.ep_client.listPadsOfAuthor(author_id_one['authorID']), {'padIDs': []})
+
+        # Check pads of non-existing author
+        with self.assertRaises(ValueError) as cm:
+            self.assertEqual(self.ep_client.listPadsOfAuthor(random_name_two))
+        self.assertEqual(str(cm.exception), 'authorID does not exist')
+
+    # SESSIONS
+
+    # PAD CONTENT
+
+    # CHAT
+
+    # PAD
+
+    # PADS
+
+    def testListAllPads(self):
+        '''List all pads. Read empty padlist, create pad, check list again and remove pad'''
+        random_name = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+        self.assertEqual(self.ep_client.listAllPads(), {'padIDs': []})
+        self.ep_client.createPad(random_name)
+        self.assertEqual(self.ep_client.listAllPads(), {'padIDs': [random_name]})
+        self.ep_client.deletePad(random_name)
+        self.assertEqual(self.ep_client.listAllPads(), {'padIDs': []})
+
+    # GLOBAL
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testCreateLargePad']
-    unittest.main()
+    unittest.main(apiKey)
