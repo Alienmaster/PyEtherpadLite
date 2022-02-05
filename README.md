@@ -32,11 +32,23 @@ Once you have created the APIKEY.txt file, you will need to edit the py_etherpad
 
 # 4 More details
 
-See the src/py_etherpad/\__init__.py file for further details on the methods and parameters available for the API
+See the `src/py_etherpad/__init__.py` file for further details on the methods and parameters available for the API.
+Nearly all calls from the [official API](https://etherpad.org/doc/v1.8.16/]) work as in the official documentation described. (expect sendText, appendText and setHTML for Text > 8KB)
 
-# 5 License
+# 5 Test coverage
+
+Actually im writing the tests for each topic.
+
+Already finished:
+- Groups
+- Pads
+
+Nearly finished:
+- Author
+
+# 6 License
 
 Apache License
 
-# 6 Credit
+# 7 Credit
 This python API-Wrapper is a Fork from [devjones](https://github.com/devjones/PyEtherpadLite) and is inspired by [TomNomNom's php client](https://github.com/TomNomNom/etherpad-lite-client)
