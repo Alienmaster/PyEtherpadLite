@@ -29,8 +29,8 @@ class TestEtherpadLiteClient(unittest.TestCase):
 
         # Delete non-existing group
         with self.assertRaises(ValueError) as cm:
-            self.assertEqual(self.ep_client.deleteGroup(group))
-        self.assertEqual(cm.exception, 'groupID does not exist')
+            self.ep_client.deleteGroup(group)
+        self.assertEqual(str(cm.exception), 'groupID does not exist')
 
     def testGroupMapper(self):
         """Test Group Mapper. Create two groups with mapping to external ID.
