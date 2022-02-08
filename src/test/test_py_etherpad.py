@@ -142,14 +142,15 @@ class TestEtherpadLiteClient(unittest.TestCase):
         self.assertEqual(self.ep_client.getAuthorName(author_id_one['authorID']), random_name_one)
 
         # Try to create the first author again with authormapper
-        self.assertNotEqual(self.ep_client.createAuthorIfNotExistsFor(random_name_one), {'authorID': author_id_one['authorID']})
+        self.assertNotEqual(self.ep_client.createAuthorIfNotExistsFor(random_name_one),
+                            {'authorID': author_id_one['authorID']})
 
         # Check first authors pads and create one
         self.assertEqual(self.ep_client.listPadsOfAuthor(author_id_one['authorID']), {'padIDs': []})
 
         # Check pads of non-existing author
         with self.assertRaises(ValueError) as cm:
-            self.assertEqual(self.ep_client.listPadsOfAuthor(random_name_two))
+            self.ep_client.listPadsOfAuthor(random_name_two)
         self.assertEqual(str(cm.exception), 'authorID does not exist')
 
     # SESSIONS
