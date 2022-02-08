@@ -164,7 +164,7 @@ class TestEtherpadLiteClient(unittest.TestCase):
     # PADS
 
     def testListAllPads(self):
-        '''List all pads. Read empty padlist, create pad, check list again and remove pad'''
+        """List all pads. Read empty padlist, create pad, check list again and remove pad"""
         random_name = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
         self.assertEqual(self.ep_client.listAllPads(), {'padIDs': []})
         self.ep_client.createPad(random_name)
@@ -173,6 +173,7 @@ class TestEtherpadLiteClient(unittest.TestCase):
         self.assertEqual(self.ep_client.listAllPads(), {'padIDs': []})
 
     # GLOBAL
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testCreateLargePad']
