@@ -73,7 +73,8 @@ class EtherpadLiteClient:
 
         if result['code'] == self.CODE_OK:
             return result['data']
-        elif result['code'] == self.CODE_INVALID_PARAMETERS or result['code'] == self.CODE_INVALID_API_KEY:
+        elif result['code'] == self.CODE_INVALID_PARAMETERS or \
+                result['code'] == self.CODE_INVALID_API_KEY:
             raise ValueError(result['message'])
         elif result['code'] == self.CODE_INTERNAL_ERROR:
             raise Exception(result['message'])
@@ -83,7 +84,8 @@ class EtherpadLiteClient:
             raise Exception("An unexpected error occurred whilst handling the response")
 
     # GROUPS
-    # Pads can belong to a group. The padID of grouppads is starting with a groupID like g.asdfasdfasdfasdf$test
+    # Pads can belong to a group. The padID of grouppads is starting with a
+    # groupID like g.asdfasdfasdfasdf$test
 
     def createGroup(self):
         """creates a new group"""
@@ -153,12 +155,16 @@ class EtherpadLiteClient:
         })
 
     # SESSIONS
-    # Sessions can be created between a group and an author. This allows an author to access more than one group. 
-    # The sessionID will be set as a cookie to the client and is valid until a certain date. The session cookie can also 
-    # contain multiple comma-separated sessionIDs, allowing a user to edit pads in different groups at the same time.
-    # Only users with a valid session for this group, can access group pads. You can create a session after you 
-    # authenticated the user at your web application, to give them access to the pads. You should save the sessionID 
-    # of this session and delete it after the user logged out.
+    # Sessions can be created between a group and an author.
+    # This allows an author to access more than one group.
+    # The sessionID will be set as a cookie to the client and is valid
+    # until a certain date. The session cookie can also contain multiple
+    # comma-separated sessionIDs, allowing a user to edit pads in different
+    # groups at the same time. Only users with a valid session for
+    # this group, can access group pads. You can create a session after you
+    # authenticated the user at your web application, to give them
+    # access to the pads. You should save the sessionID of this session
+    # and delete it after the user logged out.
 
     def createSession(self, groupID, authorID, validUntil):
         """creates a new session. validUntil is an unix timestamp in seconds"""
@@ -202,14 +208,14 @@ class EtherpadLiteClient:
             params['rev'] = rev
         return self.call("getText", params)
 
-    def setText(self, padID, text): #TODO New setText for Text >8KB See: https://etherpad.org/doc/v1.8.14/#index_settextpadid-text
+    def setText(self, padID, text):  #TODO New setText for Text >8KB See: https://etherpad.org/doc/v1.8.14/#index_settextpadid-text
         """Sets the text of a pad"""
         return self.call("setText", {
             "padID": padID,
             "text": text
         })
-    
-    def appendText(self, padID, text): #TODO New appendText for Text >8KB
+
+    def appendText(self, padID, text):  #TODO New appendText for Text >8KB
         """Appends text to a pad."""
         return self.call("appendText", {
             "padID": padID,
@@ -223,13 +229,14 @@ class EtherpadLiteClient:
             params['rev'] = rev
         return self.call("getHTML", params)
 
-    def setHtml(self, padID, html): #TODO New setHTML for Text >8KB
-        """sets the text of a pad based on HTML, HTML must be well-formed. Malformed HTML will send a warning to the API log."""
+    def setHtml(self, padID, html):  #TODO New setHTML for Text >8KB
+        """sets the text of a pad based on HTML, HTML must be well-formed.
+        Malformed HTML will send a warning to the API log."""
         return self.call("setHTML", {
             "padID": padID,
             "html": html
         })
-    
+
     def getAttributePool(self, padID):
         """returns the attribute pool of a pad"""
         return self.call("getAttributePool", {
@@ -287,11 +294,12 @@ class EtherpadLiteClient:
         return self.call("appendChatMessage", params)
 
     # PAD
-    # Group pads are normal pads, but with the name schema GROUPID$PADNAME. A security manager controls 
-    # access of them and it's forbidden for normal pads to include a $ in the name.
+    # Group pads are normal pads, but with the name schema GROUPID$PADNAME.
+    # A security manager controls access of them and it's forbidden for
+    # normal pads to include a $ in the name.
 
     def createPad(self, padID, text=''):
-        """creates a new (non-group) pad. Note that if you need to create a group Pad, you should call createGroupPad. 
+        """creates a new (non-group) pad. Note that if you need to create a group Pad, you should call createGroupPad.
         You get an error message if you use one of the following characters in the padID: "/", "?", "&" or "#"."""
         params = {
             "padID": padID,
@@ -346,7 +354,8 @@ class EtherpadLiteClient:
         })
 
     def copyPad(self, sourceID, destinationID, force=False):
-        """copies a pad with full history and chat. If force is true and the destination pad exists, it will be overwritten."""
+        """copies a pad with full history and chat. If force is true and the
+        destination pad exists, it will be overwritten."""
         params = {
             "sourceID": sourceID,
             "destinationID": destinationID,
@@ -355,8 +364,9 @@ class EtherpadLiteClient:
         return self.call("copyPad", params)
 
     def copyPadWithoutHistory(self, sourceID, destinationID, force=False):
-        """copies a pad without copying the history and chat. If force is true and the destination pad exists, it will be 
-        overwritten. Note that all the revisions will be lost! In most of the cases one should use copyPad API instead."""
+        """copies a pad without copying the history and chat. If force is true and the destination
+        pad exists, it will be overwritten. Note that all the revisions will be lost!
+        In most of the cases one should use copyPad API instead."""
         params = {
             "sourceID": sourceID,
             "destinationID": destinationID,
@@ -409,7 +419,7 @@ class EtherpadLiteClient:
         return self.call("getLastEdited", {
             "padID": padID
         })
-    
+
     def sendClientsMessage(self, padID, msg):
         """sends a custom message of type msg to the pad"""
         return self.call("sendClientsMessage", {
@@ -437,7 +447,7 @@ class EtherpadLiteClient:
         })
 
     # PADS
-    
+
     def listAllPads(self):
         """lists all pads on this epl instance"""
         return self.call("listAllPads")
