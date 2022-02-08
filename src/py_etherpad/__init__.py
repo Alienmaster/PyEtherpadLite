@@ -429,9 +429,7 @@ class EtherpadLiteClient:
 
     def checkToken(self):
         """returns ok when the current api token is valid"""
-        return self.call("checkToken", {
-            "checkToken": padID
-        })
+        return self.call("checkToken")
 
     def setPassword(self, padID, password):  # TODO Deprecated since etherpad 1.8.7 / API Version 1.2.15
         """returns ok or a error message"""
