@@ -433,14 +433,14 @@ class EtherpadLiteClient:
             "checkToken": padID
         })
 
-    def setPassword(self, padID, password): #TODO Depricated?
+    def setPassword(self, padID, password):  # TODO Deprecated since etherpad 1.8.7 / API Version 1.2.15
         """returns ok or a error message"""
         return self.call("setPassword", {
             "padID": padID,
             "password": password
         })
 
-    def isPasswordProtected(self, padID): #TODO Depricated?
+    def isPasswordProtected(self, padID):  # TODO Deprecated since etherpad 1.8.7 / API Version 1.2.15
         """returns true or false"""
         return self.call("isPasswordProtected", {
             "padID": padID
