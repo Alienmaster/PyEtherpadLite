@@ -122,17 +122,20 @@ class EtherpadLiteClient:
 
     def deleteGroup(self, groupID):
         """deletes a group"""
+        self.checkValidFormat('groupID', groupID)
         return self.call("deleteGroup", {
             "groupID": groupID
         })
 
     def listPads(self, groupID):
         """returns all pads of this group"""
+        self.checkValidFormat('groupID', groupID)
         return self.call("listPads", {
             "groupID": groupID
         })
 
     def createGroupPad(self, groupID, padName, text=''):
+        self.checkValidFormat('groupID', groupID)
         """creates a new pad in this group"""
         params = {
             "groupID": groupID,
@@ -167,12 +170,14 @@ class EtherpadLiteClient:
 
     def listPadsOfAuthor(self, authorID):
         """returns an array of all pads this author contributed to"""
+        self.checkValidFormat('authorID', authorID)
         return self.call("listPadsOfAuthor", {
             "authorID": authorID
         })
 
     def getAuthorName(self, authorID):
         """Returns the Author Name of the author"""
+        self.checkValidFormat('authorID', authorID)
         return self.call("getAuthorName", {
             "authorID": authorID
         })
@@ -191,6 +196,8 @@ class EtherpadLiteClient:
 
     def createSession(self, groupID, authorID, validUntil):
         """creates a new session. validUntil is an unix timestamp in seconds"""
+        self.checkValidFormat('authorID', authorID)
+        self.checkValidFormat('groupID', groupID)
         return self.call("createSession", {
             "groupID": groupID,
             "authorID": authorID,
@@ -199,24 +206,28 @@ class EtherpadLiteClient:
 
     def deleteSession(self, sessionID):
         """deletes a session"""
+        self.checkValidFormat('sessionID', sessionID)
         return self.call("deleteSession", {
             "sessionID": sessionID
         })
 
     def getSessionInfo(self, sessionID):
         """returns informations about a session"""
+        self.checkValidFormat('sessionID', sessionID)
         return self.call("getSessionInfo", {
             "sessionID": sessionID
         })
 
     def listSessionsOfGroup(self, groupID):
         """returns all sessions of a group"""
+        self.checkValidFormat('groupID', groupID)
         return self.call("listSessionsOfGroup", {
             "groupID": groupID
         })
 
     def listSessionsOfAuthor(self, authorID):
         """returns all sessions of an author"""
+        self.checkValidFormat('authorID', authorID)
         return self.call("listSessionsOfAuthor", {
             "authorID": authorID
         })
@@ -415,6 +426,7 @@ class EtherpadLiteClient:
         })
 
     def getPadID(self, readOnlyID):
+        self.checkValidFormat('readonlyID', readOnlyID)
         """returns the id of a pad which is assigned to the readOnlyID"""
         return self.call("getPadID", {
             "readOnlyID": readOnlyID
@@ -422,6 +434,7 @@ class EtherpadLiteClient:
 
     def setPublicStatus(self, padID, publicStatus):
         """sets a boolean for the public status of a pad"""
+        self.checkValidFormat('padID', padID)
         return self.call("setPublicStatus", {
             "padID": padID,
             "publicStatus": publicStatus
@@ -429,6 +442,7 @@ class EtherpadLiteClient:
 
     def getPublicStatus(self, padID):
         """return true of false"""
+        self.checkValidFormat('padID', padID)
         return self.call("getPublicStatus", {
             "padID": padID
         })
