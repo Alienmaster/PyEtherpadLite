@@ -137,10 +137,12 @@ class TestEtherpadLiteClient(unittest.TestCase):
 
     def testCreateAuthor(self):
         # TODO:missing Test of listOfPadsOfAuthor when Authors has a Pad
-        # TODO:Doku wrong: getAuthorName returns String of authorName not Dict
+        # Docs wrong: getAuthorName returns String of authorName not Dict
+        # See Issue: https://github.com/ether/etherpad-lite/issues/5410
+
         # Create an author
-        random_name_one = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
-        random_name_two = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+        random_name_one = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(16))
+        random_name_two = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(16))
 
         author_id_one = self.ep_client.createAuthor(random_name_one)
 
@@ -157,13 +159,18 @@ class TestEtherpadLiteClient(unittest.TestCase):
         self.assertNotEqual(self.ep_client.createAuthorIfNotExistsFor(random_name_one),
                             {'authorID': author_id_one['authorID']})
 
-        # Check first authors pads and create one
+        # Check authors empty padlist and create a pad
         self.assertEqual(self.ep_client.listPadsOfAuthor(author_id_one['authorID']), {'padIDs': []})
 
         # Check pads of non-existing author
         with self.assertRaises(ValueError) as cm:
-            self.ep_client.listPadsOfAuthor(random_name_two)
+            self.ep_client.listPadsOfAuthor('a.' + random_name_two)
         self.assertEqual(str(cm.exception), 'authorID does not exist')
+
+        # Check pads of non valid authorID
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.listPadsOfAuthor(random_name_two)
+        self.assertEqual(str(cm.exception), 'parameter authorID is in a wrong format')
 
     # SESSIONS
 
