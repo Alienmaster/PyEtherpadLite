@@ -273,36 +273,38 @@ class TestEtherpadLiteClient(unittest.TestCase):
         # Delete pad
         self.assertEqual(self.ep_client.deletePad(pad_id), None)
 
-    # def testPublicStatus(self):
-    #     # TODO:Public Status seems to be depending to a group membership. Awaiting answers
-    #     # msg "You can only get/set the publicStatus of pads that belong to a group"
-    #     pad_id = self.pad_id
-    #
-    #     # Create pad
-    #     self.assertEqual(self.ep_client.createPad(pad_id), None)
-    #     self.assertEqual(self.ep_client.listAllPads(), {'padIDs': [pad_id]})
-    #
-    #     # Check public status and set private
-    #     self.assertEqual(self.ep_client.getPublicStatus(pad_id), {'publicStatus': True})
-    #     self.assertEqual(self.ep_client.setPublicStatus(pad_id, False), None)
-    #     self.assertEqual(self.ep_client.getPublicStatus(pad_id), {'publicStatus': False})
-    #     self.assertEqual(self.ep_client.setPublicStatus(pad_id, True), None)
-    #     self.assertEqual(self.ep_client.getPublicStatus(pad_id), {'publicStatus': True})
-    #
-    #     # Check and change public status of non-existing pad
-    #     with self.assertRaises(ValueError) as cm:
-    #         self.ep_client.getPublicStatus('Pussycat')
-    #     self.assertEqual(str(cm.exception), 'padID does not exist')
-    #     with self.assertRaises(ValueError) as cm:
-    #         self.ep_client.setPublicStatus('Pussycat', False)
-    #     self.assertEqual(str(cm.exception), 'padID does not exist')
-    #
-    #     # Delete pad
-    #     self.assertEqual(self.ep_client.deletePad(pad_id), None)
+    def testPublicStatus(self):
+        # Public Status depends to a group membership
+        # msg "You can only get/set the publicStatus of pads that belong to a group"
+        pad_name = self.pad_id
+        
+        # Create group
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': []})
+        # print(self.ep_client.createGroup())
+        group_id = self.ep_client.createGroup()["groupID"]
+        self.assertEqual(self.ep_client.listAllGroups(), {'groupIDs': [group_id]})
 
-    # def setPublicStatus(self, padID, publicStatus):
+        # Create empty group pad
+        pad_id = group_id + "$" + pad_name
+        self.assertEqual(self.ep_client.createGroupPad(group_id, pad_name), {'padID': pad_id})
 
-    # def getPublicStatus(self, padID):
+        # Get public status and set public status
+        self.assertEqual(self.ep_client.getPublicStatus(pad_id), {'publicStatus': False})
+        self.assertEqual(self.ep_client.setPublicStatus(pad_id, True), None)
+        self.assertEqual(self.ep_client.getPublicStatus(pad_id), {'publicStatus': True})
+        self.assertEqual(self.ep_client.setPublicStatus(pad_id, False), None)
+        self.assertEqual(self.ep_client.getPublicStatus(pad_id), {'publicStatus': False})
+
+        # Delete group
+        self.assertEqual(self.ep_client.deleteGroup(group_id), None)
+
+        # Get and set public status of non-existing pad
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.getPublicStatus('Pussycat')
+        self.assertEqual(str(cm.exception), 'You can only get/set the publicStatus of pads that belong to a group')
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.setPublicStatus('Pussycat', False)
+        self.assertEqual(str(cm.exception), 'You can only get/set the publicStatus of pads that belong to a group')
 
     def testCopy(self):
         pad_id = self.pad_id
