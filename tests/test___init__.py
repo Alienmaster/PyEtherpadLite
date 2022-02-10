@@ -255,10 +255,12 @@ class TestEtherpadLiteClient(unittest.TestCase):
         self.assertEqual(self.ep_client.createPad(pad_id), None)
         self.assertEqual(self.ep_client.listAllPads(), {'padIDs': [pad_id]})
 
-        # Check revision, set text and check again
+        # Check revision, set and append text and check again
         self.assertEqual(self.ep_client.getRevisionsCount(pad_id), {'revisions': 0})
         self.assertEqual(self.ep_client.setText(pad_id, text), None)
         self.assertEqual(self.ep_client.getRevisionsCount(pad_id), {'revisions': 1})
+        self.assertEqual(self.ep_client.appendText(pad_id, text), None)
+        self.assertEqual(self.ep_client.getRevisionsCount(pad_id), {'revisions': 2})
 
         # Check revision on non-existing pad
         with self.assertRaises(ValueError) as cm:
@@ -268,7 +270,7 @@ class TestEtherpadLiteClient(unittest.TestCase):
         # Save revision and list revisions
         self.assertEqual(self.ep_client.listSavedRevisions(pad_id), {'savedRevisions': []})
         self.assertEqual(self.ep_client.saveRevision(pad_id), None)
-        self.assertEqual(self.ep_client.listSavedRevisions(pad_id), {'savedRevisions': [1]})
+        self.assertEqual(self.ep_client.listSavedRevisions(pad_id), {'savedRevisions': [2]})
 
         # Delete pad
         self.assertEqual(self.ep_client.deletePad(pad_id), None)
