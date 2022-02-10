@@ -20,8 +20,8 @@ setup(
         'Bug Tracker': 'https://github.com/Alienmaster/PyEtherpadLite/issues',
         'Source Code': 'https://github.com/Alienmaster/PyEtherpadLite',
     },
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages('PyEtherpad'),
+    package_dir={'': 'PyEtherpad'},
     options={'bdist_wheel': {'universal': True}},
     zip_safe=True,  # This package can safely be installed from a zip file
     platforms='any',
