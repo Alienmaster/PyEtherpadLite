@@ -307,13 +307,21 @@ class TestEtherpadLiteClient(unittest.TestCase):
         # Delete group
         self.assertEqual(self.ep_client.deleteGroup(group_id), None)
 
-        # Get and set public status of non-existing pad
+        # Get and set public status of a non-existing pad
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.getPublicStatus('g.gdYVoCjdNF3Ajrro$meow')
+        self.assertEqual(str(cm.exception), 'padID does not exist')
+        with self.assertRaises(ValueError) as cm:
+            self.ep_client.setPublicStatus('g.gdYVoCjdNF3Ajrro$meow', True)
+        self.assertEqual(str(cm.exception), 'padID does not exist')
+        
+        # Get and set public status of non valid padID
         with self.assertRaises(ValueError) as cm:
             self.ep_client.getPublicStatus('Pussycat')
-        self.assertEqual(str(cm.exception), 'You can only get/set the publicStatus of pads that belong to a group')
+        self.assertEqual(str(cm.exception), 'parameter padID is in a wrong format')
         with self.assertRaises(ValueError) as cm:
-            self.ep_client.setPublicStatus('Pussycat', False)
-        self.assertEqual(str(cm.exception), 'You can only get/set the publicStatus of pads that belong to a group')
+            self.ep_client.setPublicStatus('Pussycat', True)
+        self.assertEqual(str(cm.exception), 'parameter padID is in a wrong format')
 
     def testCopy(self):
         pad_id = self.pad_id
