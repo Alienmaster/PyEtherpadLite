@@ -266,7 +266,7 @@ class EtherpadLiteClient:
         if start is not None and end is not None:
             params['start'] = start
             params['end'] = end        
-        return self.call("getRevisionChangeset", params)
+        return self.call("getChatHistory", params)
 
     def getChatHead(self, padID):
         """returns the chatHead (last number of the last chat-message) of the pad"""
