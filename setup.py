@@ -7,7 +7,7 @@ with open('README.md') as f:
 
 setup(
     name='pyetherpadlite',
-    version='1.1.1',
+    version='1.2',
     description='Python bindings for Etherpad\'s HTTP API. (https://github.com/ether/etherpad-lite)',
     long_description=long_description,
     long_description_content_type='text/markdown',
