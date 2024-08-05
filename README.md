@@ -1,5 +1,5 @@
 # API version
-The supported API version is [1.2.15](https://etherpad.org/doc/v1.8.16/#index_http-api)
+The supported API version is [1.3.0](https://etherpad.org/doc/v2.1.1/index.html#_http_api)
 
 This python api enables easy interaction with the Etherpad API.  Etherpad is a collaborative editor provided by the Etherpad Foundation.  http://etherpad.org
 
@@ -33,7 +33,7 @@ myPad.setText('testPad','New text from the python wrapper!')
 # 4 More details
 
 See the `src/py_etherpad/__init__.py` file for further details on the methods and parameters available for the API.
-Nearly all calls from the [official API](https://etherpad.org/doc/v1.8.16/]) work as in the official documentation described. (expect sendText, appendText and setHTML for Text > 8KB)
+Nearly all calls from the [official API](https://etherpad.org/doc/v2.1.1/]) work as in the official documentation described.
 
 # 5 Test coverage
 
