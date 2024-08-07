@@ -37,14 +37,19 @@ Nearly all calls from the [official API](https://etherpad.org/doc/v2.1.1/]) work
 
 # 5 Test coverage
 
-Actually im writing the tests for each topic.
-
 Already finished:
 - Groups
-- Pads
+- Pad
 
 Nearly finished:
 - Author
+- Pad Content
+
+Missing:
+- Session
+- Chat
+- Pads
+- Global
 
 # 6 License
 
